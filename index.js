@@ -16,6 +16,12 @@ var packageResultTemplate = {
 function createReport(projectRootDirPath, recursive) {
 
     var projectPackageJson = loadPackageJson(projectRootDirPath);
+
+    if (!projectPackageJson.dependencies) {
+        console.error("There are no dependencies.");
+        process.exit(1);
+    }
+
     var dependingPackageNameList = Object.keys(projectPackageJson.dependencies);
 
     var report = reportTemplate;
