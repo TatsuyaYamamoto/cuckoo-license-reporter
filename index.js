@@ -1,22 +1,24 @@
 var fs = require('fs');
 
-var packageDirNames = loadNodeModuleDirs().filter(isNotBinDir);
 
-var report = createReportTemplateJson();
-report['numberOfPackages'] = packageDirNames.length;
-packageDirNames.forEach(function (packageDirName, index, array) {
-    var packageJson = loadPackageJson(packageDirName);
+function createReport() {
+    var packageDirNames = loadNodeModuleDirs().filter(isNotBinDir);
 
-    report['results'].push({
-        name: packageJson.name,
-        version: packageJson.version,
-        license: packageJson.license,
-        repositoryUrl: packageJson.repository.url
+    var report = createReportTemplateJson();
+    report['numberOfPackages'] = packageDirNames.length;
+    packageDirNames.forEach(function (packageDirName, index, array) {
+        var packageJson = loadPackageJson(packageDirName);
+
+        report['results'].push({
+            name: packageJson.name,
+            version: packageJson.version,
+            license: packageJson.license,
+            repositoryUrl: packageJson.repository ? packageJson.repository.url : null
+        });
     });
-});
 
-console.info(JSON.stringify(report));
-
+    return report;
+}
 
 function createReportTemplateJson() {
     var report = Object.create(null);
@@ -37,3 +39,5 @@ function loadNodeModuleDirs() {
 function loadPackageJson(packageDirName) {
     return JSON.parse(fs.readFileSync('./node_modules/' + packageDirName + '/package.json', 'utf8'));
 }
+
+exports.createReport = createReport;
