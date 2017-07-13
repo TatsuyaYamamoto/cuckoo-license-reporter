@@ -1,5 +1,5 @@
 {
-  "name": "cuckoo",
+  "name": "cuckoo-license-reporter",
   "version": "1.0.0",
   "description": "npm package license reporter",
   "main": "index.js",
@@ -16,6 +16,10 @@
   ],
   "author": "Tatsuya Yamamoto",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TatsuyaYamamoto/cuckoo-license-reporter.git"
+  },
   "devDependencies": {
     "jasmine": "^2.6.0",
     "rewire": "^2.5.2"
