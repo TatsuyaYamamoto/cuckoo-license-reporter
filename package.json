@@ -7,7 +7,7 @@
     "cuckoo": "cli.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine"
   },
   "keywords": [
     "cuckoo",
@@ -16,7 +16,11 @@
   ],
   "author": "Tatsuya Yamamoto",
   "license": "MIT",
+  "devDependencies": {
+    "jasmine": "^2.6.0",
+    "rewire": "^2.5.2"
+  },
   "dependencies": {
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.4"
   }
 }
