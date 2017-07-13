@@ -25,7 +25,7 @@ describe("index.js", function () {
             it("should return project's package.json without package name", function () {
                 const projectRootPath = process.env.PWD;
 
-                expect(loadPackageJson(projectRootPath)().name).toBe("cuckoo");
+                expect(loadPackageJson(projectRootPath)().name).toBe("cuckoo-license-reporter");
             });
 
             it("should return depending package.json with package name", function () {
