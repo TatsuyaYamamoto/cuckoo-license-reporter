@@ -23,3 +23,24 @@ $ npm install
 // write the result to the standard output.
 $ $(npm bin)/cuckoo
 ```
+
+
+## Example
+
+```bash
+// cuckoo dependecies. 
+$ $(npm bin)/cuckoo | jq
+{
+  "title": "cuckoo license report",
+  "numberOfPackages": 1,
+  "results": [
+    {
+      "name": "lodash",
+      "version": "4.17.4",
+      "license": "MIT",
+      "repositoryUrl": "git+https://github.com/lodash/lodash.git"
+    }
+  ]
+}
+
+```
