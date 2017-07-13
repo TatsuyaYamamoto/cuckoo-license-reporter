@@ -24,6 +24,18 @@ function createReport(projectRootDirPath, recursive) {
 
     var dependingPackageNameList = Object.keys(projectPackageJson.dependencies);
 
+    if (recursive) {
+        dependingPackageNameList.forEach(function (package) {
+            var packageJson = loadPackageJson(path.resolve(projectRootDirPath, 'node_modules', package));
+
+            if (packageJson.dependencies) {
+                Array.prototype.push.apply(
+                    dependingPackageNameList,
+                    Object.keys(packageJson.dependencies));
+            }
+        })
+    }
+
     var report = reportTemplate;
     report.numberOfPackages = dependingPackageNameList.length;
     report.results = dependingPackageNameList.map(function (packageName) {
