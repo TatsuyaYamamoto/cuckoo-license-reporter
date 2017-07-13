@@ -1,13 +1,15 @@
 var fs = require('fs');
+var path = require('path');
 
 
 function createReport() {
-    var packageDirNames = loadNodeModuleDirs().filter(isNotBinDir);
+function createReport(projectRootDirPath) {
 
+    var packageDirNames = loadNodeModuleDirs(projectRootDirPath);
     var report = createReportTemplateJson();
     report['numberOfPackages'] = packageDirNames.length;
     packageDirNames.forEach(function (packageDirName, index, array) {
-        var packageJson = loadPackageJson(packageDirName);
+        var packageJson = loadPackageJson(path.resolve(projectRootDirPath, 'node_modules', packageDirName));
 
         report['results'].push({
             name: packageJson.name,
@@ -18,6 +20,16 @@ function createReport() {
     });
 
     return report;
+}
+//---------------------------------------------------------------------------
+// Private methods
+//---------------------------------------------------------------------------
+
+
+function loadNodeModuleDirs(dirPath) {
+    return fs.readdirSync(path.resolve(dirPath, 'node_modules')).filter(function (dirName) {
+        return dirName !== '.bin';
+    });
 }
 
 function createReportTemplateJson() {
@@ -30,14 +42,6 @@ function createReportTemplateJson() {
 
 function isNotBinDir(dirName) {
     return dirName !== '.bin';
-}
-
-function loadNodeModuleDirs() {
-    return fs.readdirSync('./node_modules/');
-}
-
-function loadPackageJson(packageDirName) {
-    return JSON.parse(fs.readFileSync('./node_modules/' + packageDirName + '/package.json', 'utf8'));
 }
 
 exports.createReport = createReport;
