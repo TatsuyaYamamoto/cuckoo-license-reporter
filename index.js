@@ -1,81 +1,51 @@
 var fs = require('fs');
 var path = require('path');
+var _ = require('lodash');
 
-var reportTemplate = {
-    title: 'cuckoo license report',
-    numberOfPackages: 0,
-    results: []
-};
-var packageResultTemplate = {
-    name: null,
-    version: null,
-    license: null,
-    repositoryUrl: null
-};
+function run(projectRootDirPath, recursive) {
+    var projectPackageJson = loadPackageJson(projectRootDirPath)();
 
-function createReport(projectRootDirPath, recursive) {
-
-    var projectPackageJson = loadPackageJson(projectRootDirPath);
-
-    if (!projectPackageJson.dependencies) {
+    if (!_.has(projectPackageJson, "dependencies")) {
         console.error("There are no dependencies.");
         process.exit(1);
     }
 
-    var dependingPackageNameList = Object.keys(projectPackageJson.dependencies);
+    var dependingPackageJsonList = _.keys(projectPackageJson.dependencies).map(loadPackageJson(projectRootDirPath));
 
     if (recursive) {
-        dependingPackageNameList.forEach(function (package) {
-            var packageJson = loadPackageJson(path.resolve(projectRootDirPath, 'node_modules', package));
-
-            if (packageJson.dependencies) {
-                Array.prototype.push.apply(
-                    dependingPackageNameList,
-                    Object.keys(packageJson.dependencies));
-            }
-        })
+        dependingPackageJsonList = _.flatten(_.concat(
+            dependingPackageJsonList,
+            dependingPackageJsonList.map(function (dependingPackageJson) {
+                return _.keys(dependingPackageJson.dependencies).map(loadPackageJson(projectRootDirPath));
+            })));
     }
 
-    var report = reportTemplate;
-    report.numberOfPackages = dependingPackageNameList.length;
-    report.results = dependingPackageNameList.map(function (packageName) {
-        var packageJson = loadPackageJson(path.resolve(projectRootDirPath, 'node_modules', packageName));
-        return {
-            name: packageJson.name,
-            version: packageJson.version,
-            license: packageJson.license,
-            repositoryUrl: packageJson.repository ? packageJson.repository.url : null
-        };
-    });
-
-    return report;
+    return createReport(projectPackageJson, dependingPackageJsonList);
 }
-//---------------------------------------------------------------------------
-// Private methods
-//---------------------------------------------------------------------------
-
 
 function loadPackageJson(dirPath) {
-    return JSON.parse(fs.readFileSync(path.resolve(dirPath, 'package.json'), 'utf8'));
-}
+    return function (packageName) {
+        var targetPath = packageName ?
+            path.resolve(dirPath, 'node_modules', packageName, 'package.json') :    // node modules'
+            path.resolve(dirPath, 'package.json');                                  // project's
 
-function loadNodeModuleDirs(dirPath) {
-    return fs.readdirSync(path.resolve(dirPath, 'node_modules')).filter(function (dirName) {
-        return dirName !== '.bin';
-    });
-}
-
-function getDependingPackageNames(projectRootDirPath, recursive) {
-    var projectPackageJson = loadPackageJson(projectRootDirPath);
-
-    var projectDependencies = Object.keys(packageJson.dependencies);
-    if (!recursive) {
-        return projectDependencies;
+        return JSON.parse(fs.readFileSync(targetPath, 'utf8'));
     }
-
-    projectDependencies.forEach(function (d) {
-        loadPackageJson()
-    })
 }
 
-exports.createReport = createReport;
+function createReport(projectPackageJson, dependingPackageJsonList) {
+    return {
+        title: 'cuckoo license report',
+        numberOfPackages: _.keys(projectPackageJson.dependencies).length,
+        results: dependingPackageJsonList.map(function (packageJson) {
+            return {
+                name: packageJson.name,
+                version: packageJson.version,
+                license: packageJson.license,
+                repositoryUrl: packageJson.repository ? packageJson.repository.url : null
+            }
+        })
+    };
+}
+
+exports.run = run;

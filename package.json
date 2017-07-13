@@ -15,5 +15,8 @@
     "report"
   ],
   "author": "Tatsuya Yamamoto",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.4",
+  }
 }
